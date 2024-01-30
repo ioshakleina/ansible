@@ -1,6 +1,12 @@
+---
 - name: Install PostgreSQL server
   apt:
     name: postgresql
+    state: present
+
+- name: Install psycopg2 package
+  apt:
+    name: python3-psycopg2
     state: present
 
 - name: Configure PostgreSQL database
@@ -18,4 +24,4 @@
     password: "{{ db_pass }}"
     state: present
     encrypted: yes
-    
+  
