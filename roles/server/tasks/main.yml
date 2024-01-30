@@ -3,8 +3,10 @@
     name: apache2
     state: present
 
-- name: Copy application files
-  copy:
-    src: https://github.com/Practical-DevOps/app-for-devops
+- name: Clone application repository
+  git:
+    repo: https://github.com/Practical-DevOps/app-for-devops.git
     dest: /var/www/html
+    version: main  # Or the branch you want to clone
   notify: Restart Apache
+  
