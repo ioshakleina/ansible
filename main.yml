@@ -1,5 +1,4 @@
----
-- name: Install and Configure Apache with PostgreSQL and Laravel App
+- name: Deploy Application
   hosts: server:db
   become: true
 
@@ -8,117 +7,7 @@
     db_name: "{{ db_name }}"
     db_user: "{{ db_user }}"
     db_pass: "{{ db_pass }}"
-    app_repo_url: "https://github.com/Practical-DevOps/app-for-devops.git"
-    app_install_dir: "/var/www/app-for-devops"
 
-  tasks:
-    - name: Update apt package cache
-      apt:
-        update_cache: yes
-
-    - name: Install Apache
-      apt:
-        name: apache2
-        state: present
-
-    - name: Ensure Apache is running and enabled
-      service:
-        name: apache2
-        state: started
-        enabled: yes
-
-    - name: Install PostgreSQL
-      apt:
-        name: postgresql
-        state: present
-
-    - name: Configure PostgreSQL database
-      postgresql_db:
-        name: "{{ db_name }}"
-        state: present
-        login_user: postgres
-        login_password: postgres
-
-    - name: Create PostgreSQL user
-      postgresql_user:
-        name: "{{ db_user }}"
-        password: "{{ db_pass }}"
-        db: "{{ db_name }}"
-        state: present
-        login_user: postgres
-        login_password: postgres
-
-    - name: Allow remote connections to PostgreSQL
-      lineinfile:
-        path: /etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
-        line: 'listen_addresses = "*"'
-      notify: Reload PostgreSQL
-
-    - name: Allow access to PostgreSQL from specific host
-      postgresql_access:
-        db: "{{ db_name }}"
-        user: "{{ db_user }}"
-        addr: "{{ db_host }}"
-        method: md5
-        state: present
-        login_user: postgres
-        login_password: postgres
-
-    - name: Install PHP and Composer
-      apt:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - php
-        - php-cli
-        - php-mbstring
-        - unzip
-      become: true
-
-    - name: Clone Laravel App Repository
-      git:
-        repo: "{{ app_repo_url }}"
-        dest: "{{ app_install_dir }}"
-      become: true
-
-    - name: Install Laravel App Dependencies
-      composer:
-        command: install
-        chdir: "{{ app_install_dir }}"
-
-    - name: Set Laravel App Permissions
-      file:
-        path: "{{ app_install_dir }}/storage"
-        state: directory
-        mode: '0755'
-        recurse: yes
-
-    - name: Configure Apache for Laravel App
-      apache2_module:
-        name: rewrite
-        state: present
-      become: true
-
-    - name: Create Apache VirtualHost for Laravel App
-      apache2_vhost:
-        config_file: "app-for-devops.conf"
-        state: present
-        template_src: "laravel_vhost.conf.j2"
-        vars:
-          server_name: "{{ inventory_hostname }}"
-          document_root: "{{ app_install_dir }}/public"
-          directory_options: "FollowSymLinks"
-          allow_override: "All"
-      become: true
-
-    - name: Reload Apache
-      service:
-        name: apache2
-        state: reloaded
-      become: true
-
-  handlers:
-    - name: Reload PostgreSQL
-      systemd:
-        name: postgresql
-        state: reloaded
+  roles:
+    - server
+    - db

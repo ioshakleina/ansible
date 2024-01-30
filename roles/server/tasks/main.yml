@@ -1,0 +1,10 @@
+- name: Install Apache
+  apt:
+    name: apache2
+    state: present
+
+- name: Copy application files
+  copy:
+    src: https://github.com/Practical-DevOps/app-for-devops
+    dest: /var/www/html
+  notify: Restart Apache
