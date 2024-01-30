@@ -4,10 +4,11 @@
     state: present
 
 - name: Clone application repository
-  ansibble.biiltin.git:
+  git:
     repo: https://github.com/Practical-DevOps/app-for-devops.git
     dest: ./devops_pract
     clone: yes
     update: yes
-  become: false
+  notify: Restart Apache
+  
 
