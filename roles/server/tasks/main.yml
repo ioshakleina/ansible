@@ -6,7 +6,7 @@
 - name: Clone application repository
   git:
     repo: https://github.com/Practical-DevOps/app-for-devops.git
-    dest: ./devops_pract
+    dest: /var/www/app
     clone: yes
     update: yes
   notify: Restart Apache
